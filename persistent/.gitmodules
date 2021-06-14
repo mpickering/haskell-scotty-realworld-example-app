@@ -1,0 +1,3 @@
+[submodule "pool"]
+	path = pool
+	url = https://github.com/bos/pool.git

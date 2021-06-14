@@ -1,0 +1,13 @@
+resolver: lts-14.27
+packages:
+  - ./persistent
+  - ./persistent-sqlite
+  - ./persistent-test
+    # - ./persistent-mongoDB
+  - ./persistent-mysql
+  - ./persistent-postgresql
+  - ./persistent-redis
+  - ./persistent-qq
+
+extra-deps:
+    - lift-type-0.1.0.0
