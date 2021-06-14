@@ -22,3 +22,6 @@ resolveToken token = runExceptT $ do
     when (expiredAt < curTime) $ Left TokenErrorExpired
     maybe (Left TokenErrorUserIdNotFound) Right $ jwtSub jwtClaims >>= readMay
   return (token, userId)
+
+instance MonadFail (Either TokenError) where
+  fail s = error s

@@ -179,7 +179,7 @@ articleSpec =
 
       it "should correctly break the pages based on limit" $ do
         Right user <- registerRandomUser
-        tags@[tag] <- randomTags 1 
+        tags@[tag] <- randomTags 1
         Right article1 <- createRandomArticle user tags
         Right article2 <- createRandomArticle user tags
         let filter = ArticleFilter (Just tag) Nothing Nothing
@@ -188,7 +188,7 @@ articleSpec =
         runClient (RW.getArticles Nothing filter (Pagination 1 1))
           `shouldReturn` Right [article1]
 
-          
+
 favoriteSpec :: Spec
 favoriteSpec =
   describe "favorites" $ do
@@ -198,7 +198,7 @@ favoriteSpec =
       it "should require valid token" $
         runClient (RW.favoriteArticle "invalidToken" "invalidSlug")
           `shouldReturn` Left (RW.ErrUnauthorized $ TokenErrorMalformed "BadCrypto")
-          
+
       it "should throw err if trying to favorite non-existent article" $ do
         Right user <- registerRandomUser
         let token = userToken user
@@ -221,7 +221,7 @@ favoriteSpec =
       it "should require valid token" $
         runClient (RW.favoriteArticle "invalidToken" "invalidSlug")
           `shouldReturn` Left (RW.ErrUnauthorized $ TokenErrorMalformed "BadCrypto")
-          
+
       it "should throw err if trying to unfavorite non-existent article" $ do
         Right user <- registerRandomUser
         let token = userToken user

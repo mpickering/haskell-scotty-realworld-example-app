@@ -1,0 +1,1 @@
+docker run -d --name dev-postgres -e POSTGRES_PASSWORD=pass -p 8888:5432 -e POSTGRES_PASSWORD=postgres postgres

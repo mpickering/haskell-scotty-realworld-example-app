@@ -1,0 +1,18 @@
+function generate_body (){
+  tr -dc a-z1-4 </dev/urandom | tr 1-2 ' \n' | awk 'length==0 || length>50' | tr 3-4 ' ' | sed 's/^ *//' | cat -s | sed 's/ / /g' |fmt |  head -n 5 | sed ':a;N;$!ba;s/\n/\\n/g' | tee out
+}
+
+curl http://localhost:3000/api/articles
+#curl -H "Content-Type: application/json" -X POST http://localhost:3000/api/users -d '{ "user": { "username": "user1", "email": "email@email.com", "password": "password"}}'
+token=$(curl -s -H "Content-Type: application/json" -X POST http://localhost:3000/api/users/login -d '{ "user": { "email": "email@email.com", "password": "password"}}' | jq -r '.user.token')
+curl http://localhost:3000/api/articles | jq
+
+echo $token
+
+for i in {1..1000}
+do
+echo "$i"
+curl -v -H "Authorization: Token $token" -H "Content-Type: application/json" -X POST http://localhost:3000/api/articles -d "{ \"article\": { \"title\": \"MyArticle $i\", \"description\": \"description $i\", \"body\":\"$(generate_body)\", \"tagList\":[]}}"
+done
+
+curl http://localhost:3000/api/articles?limit=500 | jq

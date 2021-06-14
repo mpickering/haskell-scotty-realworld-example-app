@@ -1,0 +1,152 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.4.
+--
+-- see: https://github.com/sol/hpack
+
+name:           realworld
+version:        1.0.0.0
+category:       Web
+homepage:       https://github.com/eckyputrady/haskell-scotty-realworld-example-app#readme#readme
+bug-reports:    https://github.com/eckyputrady/haskell-scotty-realworld-example-app#readme/issues
+author:         Ecky Putrady
+maintainer:     eckyputrady@gmail.com
+copyright:      2018 Ecky Putrady
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/eckyputrady/haskell-scotty-realworld-example-app#readme
+
+library
+  exposed-modules:
+      Feature.Article.HTTP
+      Feature.Article.PG
+      Feature.Article.Service
+      Feature.Article.Types
+      Feature.Auth.HTTP
+      Feature.Auth.JWT
+      Feature.Auth.Types
+      Feature.Comment.HTTP
+      Feature.Comment.PG
+      Feature.Comment.Service
+      Feature.Comment.Types
+      Feature.Common.HTTP
+      Feature.Common.Types
+      Feature.Common.Util
+      Feature.User.HTTP
+      Feature.User.JWT
+      Feature.User.PG
+      Feature.User.Service
+      Feature.User.Types
+      Lib
+      Misc.Client
+      Platform.AesonUtil
+      Platform.HTTP
+      Platform.JWT
+      Platform.PG
+  other-modules:
+      Paths_realworld
+  hs-source-dirs:
+      src
+  default-extensions:
+      OverloadedStrings
+      QuasiQuotes
+      GeneralizedNewtypeDeriving
+      ConstraintKinds
+      FlexibleContexts
+      TemplateHaskell
+      FlexibleInstances
+      NoImplicitPrelude
+      ScopedTypeVariables
+  ghc-options: -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -eventlog
+  build-depends:
+      aeson
+    , base
+    , classy-prelude
+    , convertible
+    , containers
+    , cryptonite
+    , data-has
+    , digestive-functors
+    , digestive-functors-aeson
+    , http-client
+    , http-types
+    , jose-jwt
+    , lens
+    , mtl
+    , postgresql-simple
+    , postgresql-simple-migration
+    , regex-compat
+    , resource-pool
+    , scotty
+    , slug
+    , template-haskell
+    , time
+    , wai
+    , wai-cors
+    , warp
+    , warp-tls
+    , wreq
+    , chatter
+    , text
+    , ghc-debug-stub
+  default-language: Haskell2010
+
+executable realworld-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_realworld
+  hs-source-dirs:
+      app
+  default-extensions:
+      OverloadedStrings
+      QuasiQuotes
+      GeneralizedNewtypeDeriving
+      ConstraintKinds
+      FlexibleContexts
+      TemplateHaskell
+      FlexibleInstances
+      NoImplicitPrelude
+      ScopedTypeVariables
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -eventlog
+  build-depends:
+      base
+    , classy-prelude
+    , realworld
+  default-language: Haskell2010
+
+test-suite realworld-test
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Spec.Article
+      Spec.Comment
+      Spec.Common
+      Spec.User
+      Paths_realworld
+  hs-source-dirs:
+      test
+  default-extensions:
+      OverloadedStrings
+      QuasiQuotes
+      GeneralizedNewtypeDeriving
+      ConstraintKinds
+      FlexibleContexts
+      TemplateHaskell
+      FlexibleInstances
+      NoImplicitPrelude
+      ScopedTypeVariables
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , classy-prelude
+    , hspec
+    , postgresql-simple
+    , realworld
+    , string-random
+  default-language: Haskell2010

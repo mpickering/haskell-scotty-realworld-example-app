@@ -9,6 +9,16 @@ import qualified Web.Slug as WSlug
 import Data.Convertible (convert)
 import System.Posix.Types (EpochTime)
 
+import ClassyPrelude
+import Control.Monad.Except
+import Feature.Article.Types (ArticleFilter(..), Article(..))
+import Feature.Common.Types
+import Feature.Auth.Types
+import qualified Data.Text as T
+import NLP.Types (mkCorpus)
+import NLP.Similarity.VectorSim
+import Data.List.NonEmpty (NonEmpty(..))
+
 getArticles :: (ArticleRepo m) => Maybe CurrentUser -> ArticleFilter -> Pagination -> m [Article]
 getArticles = findArticles Nothing Nothing
 
@@ -26,9 +36,10 @@ getArticle mayCurUser slug = runExceptT $ do
 createArticle :: (ArticleRepo m, TimeRepo m) => CurrentUser -> CreateArticle -> m (Either ArticleError Article)
 createArticle curUser@(_, curUserId) param = do
   slug <- genSlug' (createArticleTitle param) curUserId
+  checkDuplicate (createArticleBody param)
   addArticle curUserId param slug
   getArticle (Just curUser) slug
- 
+
 updateArticle :: (ArticleRepo m, TimeRepo m) => CurrentUser -> Slug -> UpdateArticle -> m (Either ArticleError Article)
 updateArticle curUser slug param = runExceptT $ do
   ExceptT $ validateArticleOwnedBy (snd curUser) slug
@@ -42,7 +53,7 @@ genSlug' :: (TimeRepo m) => Text -> Integer -> m Text
 genSlug' title uId = genSlug title uId . convert <$> currentTime
 
 genSlug :: Text -> Integer -> EpochTime -> Text
-genSlug title userId unixTs = 
+genSlug title userId unixTs =
   maybe "invalidSlug" WSlug.unSlug $ WSlug.mkSlug $ unwords [tshow userId, tshow unixTs, title]
 
 deleteArticle :: (ArticleRepo m) => CurrentUser -> Slug -> m (Either ArticleError ())
@@ -82,6 +93,23 @@ class (Monad m) => ArticleRepo m where
 
 class (Monad m) => TimeRepo m where
   currentTime :: m UTCTime
-  
+
 class (Monad m) => TagRepo m where
   allTags :: m (Set Tag)
+
+-- | Apply a train spam filter to the comment
+checkDuplicate :: (ArticleRepo m) => Text -> m Double
+checkDuplicate t = do
+  let filter = ArticleFilter Nothing Nothing Nothing
+      pgination = Pagination 10000 0
+  let tokenise = T.splitOn " " . T.replace "\n" " "
+  articles <- map (tokenise . articleBody) <$> getArticles Nothing filter pgination
+  case articles of
+    [] -> return 0
+    (x:xs) -> do
+      let as = x :| xs
+      let tokens = tokenise t
+      let corpus = mkCorpus articles
+      let scores = map (similarity corpus tokens) as
+      return (maximum (impureNonNull scores))
+

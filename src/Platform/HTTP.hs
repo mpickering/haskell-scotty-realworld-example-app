@@ -6,7 +6,7 @@ import ClassyPrelude
 
 import Web.Scotty.Trans
 import Network.HTTP.Types.Status
-import Network.Wai (Response)
+import Network.Wai (Response, Application, Request, pathInfo)
 import Network.Wai.Handler.WarpTLS (runTLS, tlsSettings)
 import Network.Wai.Handler.Warp (defaultSettings, setPort)
 import Network.Wai.Middleware.Cors
@@ -15,6 +15,7 @@ import qualified Feature.Auth.HTTP as Auth
 import qualified Feature.User.HTTP as User
 import qualified Feature.Comment.HTTP as Comment
 import qualified Feature.Article.HTTP as Article
+import qualified Data.Map as M
 
 import System.Environment
 
@@ -24,11 +25,12 @@ main :: (App r m) => (m Response -> IO Response) -> IO ()
 main runner = do
   port <- acquirePort
   mayTLSSetting <- acquireTLSSetting
+  resq <- newIORef M.empty
   case mayTLSSetting of
     Nothing ->
-      scottyT port runner routes
+      scottyT port runner (routes resq)
     Just tlsSetting -> do
-      app <- scottyAppT runner routes
+      app <- scottyAppT runner (routes resq)
       runTLS tlsSetting (setPort port defaultSettings) app
   where
     acquirePort = do
@@ -45,16 +47,16 @@ main runner = do
 
 -- * Routing
 
-routes :: (App r m) => ScottyT LText m ()
-routes = do
+routes :: (App r m) => IORef (M.Map [Text] Int) -> ScottyT LText m ()
+routes resp = do
   -- middlewares
-  middleware $ cors $ const $ Just simpleCorsResourcePolicy
+  middleware $ requestCounter resp . (cors $ const $ Just simpleCorsResourcePolicy
     { corsRequestHeaders = "Authorization":simpleHeaders
     , corsMethods = "PUT":"DELETE":simpleMethods
-    }
+    })
   options (regex ".*") $ return ()
 
-  -- err 
+  -- err
   defaultHandler $ \str -> do
     status status500
     json str
@@ -63,7 +65,13 @@ routes = do
   User.routes
   Article.routes
   Comment.routes
-  
+
   -- health
   get "/api/health" $
     json True
+
+
+requestCounter :: IORef (M.Map [Text] Int) -> Application -> Application
+requestCounter size_ref app req resp = do
+  modifyIORef size_ref (M.insertWith (+) (pathInfo req) 1)
+  app req resp

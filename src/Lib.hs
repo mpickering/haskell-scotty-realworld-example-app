@@ -25,8 +25,10 @@ import qualified Feature.Comment.HTTP as CommentHTTP
 import qualified Feature.Comment.PG as CommentPG
 import qualified Feature.Comment.Service as CommentService
 
+import GHC.Debug.Stub
+
 main :: IO ()
-main = do
+main = withGhcDebug $ do
   -- acquire resources
   pgEnv <- PG.init
   jwtEnv <- JWT.init
@@ -57,7 +59,7 @@ instance UserHTTP.Service AppT where
   getProfile = UserService.getProfile
   followUser = UserService.followUser
   unfollowUser = UserService.unfollowUser
-  
+
 instance UserService.UserRepo AppT where
   findUserByAuth = UserPG.findUserByAuth
   findUserById = UserPG.findUserById
@@ -95,7 +97,7 @@ instance ArticleService.ArticleRepo AppT where
 
 instance ArticleService.TimeRepo AppT where
   currentTime = liftIO getCurrentTime
-  
+
 instance ArticleService.TagRepo AppT where
   allTags = ArticlePG.allTags
 

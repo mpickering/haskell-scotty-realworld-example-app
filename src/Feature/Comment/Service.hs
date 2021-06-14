@@ -3,6 +3,7 @@ module Feature.Comment.Service where
 import ClassyPrelude
 import Control.Monad.Except
 import Feature.Comment.Types
+import Feature.Common.Types
 import Feature.Auth.Types
 
 class (Monad m) => CommentRepo m where
@@ -12,6 +13,7 @@ class (Monad m) => CommentRepo m where
   isCommentOwnedBy :: UserId -> CommentId -> m Bool
   isCommentExist :: CommentId -> m Bool
   isSlugExist :: Slug -> m Bool
+
 
 addComment :: (CommentRepo m) => CurrentUser -> Slug -> Text -> m (Either CommentError Comment)
 addComment curUser@(_, curUserId) slug comment = runExceptT $ do
@@ -50,3 +52,4 @@ validateCommentExists :: (CommentRepo m) => CommentId -> m (Either CommentError 
 validateCommentExists cId = runExceptT $ do
   result <- lift $ isCommentExist cId
   unless result $ throwError (CommentErrorNotFound cId)
+
