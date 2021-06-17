@@ -629,5 +629,5 @@ interact :: MonadIO m => (LText -> LText) -> m ()
 interact = liftIO . LTextIO.interact
 
 {-# NOINLINE addOne #-}
-addOne :: Int -> Int -> Int
-addOne = (+)
+addOne :: Word64 -> Word64 -> Word64
+addOne w1 w2 = w1 + w2

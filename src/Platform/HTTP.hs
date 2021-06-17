@@ -2,11 +2,13 @@ module Platform.HTTP
       ( main
       ) where
 
+
+
 import ClassyPrelude
 
 import Web.Scotty.Trans
 import Network.HTTP.Types.Status
-import Network.Wai (Response, Application, Request, pathInfo)
+import Network.Wai (Response, Application, Request, requestBodyLength, pathInfo, RequestBodyLength(..))
 import Network.Wai.Handler.WarpTLS (runTLS, tlsSettings)
 import Network.Wai.Handler.Warp (defaultSettings, setPort)
 import Network.Wai.Middleware.Cors
@@ -47,7 +49,7 @@ main runner = do
 
 -- * Routing
 
-routes :: (App r m) => IORef (M.Map [Text] Int) -> ScottyT LText m ()
+routes :: (App r m) => IORef (M.Map [Text] Word64) -> ScottyT LText m ()
 routes resp = do
   -- middlewares
   middleware $ requestCounter resp . (cors $ const $ Just simpleCorsResourcePolicy
@@ -71,7 +73,11 @@ routes resp = do
     json True
 
 
-requestCounter :: IORef (M.Map [Text] Int) -> Application -> Application
+requestCounter :: IORef (M.Map [Text] Word64) -> Application -> Application
 requestCounter size_ref app req resp = do
-  modifyIORef size_ref (M.insertWith (+) (pathInfo req) 1)
+  let len = case requestBodyLength req of
+              KnownLength l -> l
+              _ -> 1
+  atomicModifyIORef size_ref (\b -> (M.insertWith (+) (pathInfo req) len b, ()))
   app req resp
+
