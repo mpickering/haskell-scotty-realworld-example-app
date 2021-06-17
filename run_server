@@ -1,0 +1,1 @@
+ENABLE_HTTPS=False DATABASE_URL=postgresql://postgres:postgres@localhost:8888 cabal new-run realworld-exe

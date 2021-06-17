@@ -25,10 +25,8 @@ import qualified Feature.Comment.HTTP as CommentHTTP
 import qualified Feature.Comment.PG as CommentPG
 import qualified Feature.Comment.Service as CommentService
 
-import GHC.Debug.Stub
-
 main :: IO ()
-main = withGhcDebug $ do
+main = do
   -- acquire resources
   pgEnv <- PG.init
   jwtEnv <- JWT.init

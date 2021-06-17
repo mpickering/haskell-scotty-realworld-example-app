@@ -94,7 +94,6 @@ library
     , wreq
     , chatter
     , text
-    , ghc-debug-stub
   default-language: Haskell2010
 
 executable realworld-exe
