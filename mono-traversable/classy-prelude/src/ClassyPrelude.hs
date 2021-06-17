@@ -146,6 +146,7 @@ module ClassyPrelude
     , asUVector
     , asSVector
     , asString
+    , addOne
     ) where
 
 import qualified Prelude
@@ -626,3 +627,7 @@ getContents = liftIO LTextIO.getContents
 -- @since 1.3.1
 interact :: MonadIO m => (LText -> LText) -> m ()
 interact = liftIO . LTextIO.interact
+
+{-# NOINLINE addOne #-}
+addOne :: Int -> Int -> Int
+addOne = (+)
